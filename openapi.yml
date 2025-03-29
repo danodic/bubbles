@@ -1,0 +1,577 @@
+openapi: 3.0.4
+
+info:
+  title: Bubbles
+  description: |-
+    A privacy-first distributed microblogging protocol.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.1
+
+servers:
+  - url: https://localhost:8000/bubbles/v1
+
+tags:
+  - name: authentication
+    description: Authenticate the local user.
+  - name: posts
+    description: Interact with posts, admin only.
+  - name: profiles
+    description: Manage user profile information, admin only.
+  - name: identity
+    description: Identity verification.
+  - name: friendships
+    description: Friendship requests.
+  - name: events
+    description: Social events.
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - authentication
+      summary: Authenticates the user.
+      description: Authenticates the user and return back a JWT token.
+      operationId: authenticateUser
+      requestBody:
+        description: Authenticates the user.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+        required: true
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - authentication
+      summary: Updates the user password..
+      description: Updates the user password.
+      operationId: updateUserPassword
+      requestBody:
+        description: Updates the user password.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+        required: true
+      responses:
+        "204":
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+  /posts:
+    post:
+      tags:
+        - posts
+      summary: Add a new post.
+      description: Adds a new post to this server.
+      operationId: addPost
+      requestBody:
+        description: Create a new post.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Post"
+        required: true
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+    get:
+      tags:
+        - posts
+      summary: Retrieves all posts.
+      description: Retirves all posts according to the page argument provided.
+      operationId: getPosts
+      parameters:
+        - name: page
+          in: query
+          description: Page number.
+          schema:
+            type: integer
+            minimum: 0
+          required: true
+        - name: itemsPerPage
+          in: query
+          description: How many items per page.
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          required: false
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+  /posts/{postId}:
+    delete:
+      tags:
+        - posts
+      summary: Deletes a post.
+      description: Deletes an existing post.
+      operationId: deletePost
+      parameters:
+        - name: postId
+          in: path
+          description: ID of post that has to be deleted.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Successful operation
+        "401":
+          description: Unauthorized
+        "404":
+          description: Post not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+    get:
+      tags:
+        - posts
+      summary: Retrieves a post.
+      description: Retrieves a single post.
+      operationId: getPost
+      parameters:
+        - name: postId
+          in: path
+          description: ID of post that has to be retrieved.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful operation
+        "401":
+          description: Unauthorized
+        "404":
+          description: Post not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+  /profiles:
+    patch:
+      tags:
+        - profiles
+      summary: Updates the user profile..
+      description: Updates the user profile with new information.
+      operationId: updateProfile
+      requestBody:
+        description: Updates the profile.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+        required: true
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - AdminAuth: []
+  /friendships:
+    put:
+      tags:
+        - friendships
+      summary: Requests friendship to this server.
+      description: Puts a new friendship request to this server.
+      operationId: updateFriendship
+      requestBody:
+        description: Friendship request.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Friendship"
+        required: true
+      responses:
+        "202":
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - FriendshipAuth: []
+  /friendships/{domain}:
+    delete:
+      tags:
+        - friendships
+      summary: Requests the deletion of a friendship.
+      description: Requests the deletion of a friendship based on the token and domain.
+      operationId: deleteFriendship
+      parameters:
+        - name: domain
+          in: path
+          description: the domain of the friendship to be deleted.
+          required: true
+          schema:
+            type: string
+            example: "danodic.dev"
+      responses:
+        "202":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - FriendshipAuth: []
+  /identity:
+    get:
+      tags:
+        - identity
+      summary: Requests the identity.
+      description: Requests the identity of this server.
+      operationId: getIdentity
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Identity"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - FriendshipAuth: []
+  /events:
+    post:
+      tags:
+        - events
+      summary: Post events into this server.
+      description: Post new events into this server.
+      operationId: postEvent.
+      requestBody:
+        description: Social event.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+        required: true
+      responses:
+        "204":
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - FriendshipAuth: []
+
+components:
+  schemas:
+    Login:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: admin
+    Token:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          format: ecdsa
+    Password:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+    Post:
+      type: object
+      required:
+        - contents
+      properties:
+        id:
+          type: string
+          format: uuid
+        contents:
+          type: string
+          example: A sample post.
+        createDate:
+          type: string
+          format: date-time
+    Profile:
+      type: object
+      required:
+        - slug
+        - lastUpdateDate
+      properties:
+        name:
+          type: string
+          example: Jao Janjao.
+        slug:
+          type: string
+          example: "@jao"
+        bio:
+          type: string
+          format: markdown
+        lastUpdateDate:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    Friendship:
+      type: object
+      required:
+        - token
+        - domain
+        - apiPath
+        - publicKey
+        - profile
+      properties:
+        token:
+          type: string
+          format: hash
+        domain:
+          type: string
+          format: domain
+          example: "danodic.dev"
+        apiPath:
+          type: string
+          example: "/api/bubbles/v1/"
+    PublicKey:
+      type: object
+      properties:
+        key:
+          type: string
+        algorithm:
+          type: string
+          example: rsa
+    Identity:
+      type: object
+      required:
+        - token
+        - domain
+        - publickey
+        - profile
+      properties:
+        token:
+          type: string
+          format: hash
+        domain:
+          type: string
+          format: domain
+          example: "danodic.dev"
+        publicKey:
+          $ref: "#/components/schemas/PublicKey"
+        profile:
+          $ref: "#/components/schemas/Profile"
+    Event:
+      type: object
+      required:
+        - kind
+        - source
+        - data
+      properties:
+        kind:
+          type: string
+          example: newPost
+        source:
+          $ref: "#/components/schemas/EventSource"
+        data:
+          type: object
+          oneOf:
+            - $ref: "#/components/schemas/PutPostEvent"
+            - $ref: "#/components/schemas/RevokePostEvent"
+            - $ref: "#/components/schemas/LikePostEvent"
+            - $ref: "#/components/schemas/UpdateProfileEvent"
+    EventSource:
+      type: object
+      required:
+        - domain
+        - token
+        - timestamp
+      properties:
+        domain:
+          type: string
+          example: "danodic.dev"
+        token:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    PutPostEvent:
+      type: object
+      required:
+        - postId
+        - contents
+      properties:
+        post:
+          $ref: "#/components/schemas/Post"
+    LikePostEvent:
+      type: object
+      required:
+        - postId
+      properties:
+        postId:
+          type: string
+          format: uuid
+    RevokePostEvent:
+      type: object
+      required:
+        - postId
+      properties:
+        postId:
+          type: string
+          format: uuid
+    UpdateProfileEvent:
+      type: object
+      required:
+        - profile
+      properties:
+        profile:
+          $ref: "#/components/schemas/Profile"
+
+  securitySchemes:
+    AdminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    FriendshipAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
