@@ -1,6 +1,6 @@
-# Event: RevokePostEvent
+# Event: `RevokePostEvent`
 
-The RevokePostEvent event is used to inform the friend server that a post has been revoked.
+The `RevokePostEvent` event is used to inform the friend server that a post has been revoked.
 
 ## Schema
 
