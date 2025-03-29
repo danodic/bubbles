@@ -38,7 +38,7 @@ The `Event` schema defines the structure of the event object. Below are the fiel
 
 Below is the list of events and their descriptions. Click on each event to view its detailed specification:
 
-- [New Post Event](/spec/events/new-post.md): Triggered when a new post is created.
-- [Like Post Event](/spec/events/like-post.md): Triggered when a post is liked.
-- [Revoke Post Event](/spec/events/revoke-post.md): Triggered when a post is revoked.
-- [Update Profile Event](/spec/events/update-profile.md): Triggered when a user profile is updated.
+- [New Post Event](/spec/events/put_post_event.md): Triggered when a new post is created.
+- [Like Post Event](/spec/events/like_post_event.md): Triggered when a post is liked.
+- [Revoke Post Event](/spec/events/revoke_post_event.md): Triggered when a post is revoked.
+- [Update Profile Event](/spec/events/update_profile_event.md): Triggered when a user profile is updated.
