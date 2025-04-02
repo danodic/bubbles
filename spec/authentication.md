@@ -13,8 +13,6 @@ The password update action enables the admin to update their password securely.
 3. As the admin, I want to be notified of invalid input if I provide improperly formatted credentials so that I know the request is invalid.
 4. As the admin, I want to be notified of unauthorized access if I provide incorrect credentials so that unauthorized access is prevented.
 5. As a system, I want to validate the provided credentials against the `Login` schema to ensure the username and password are present.
-6. As a system, I want to confirm successful authentication by providing a `Token` object.
-7. As a system, I want to handle unexpected errors gracefully and notify the client using the `Error` schema so that issues are clearly communicated.
 
 
 #### Password Update
